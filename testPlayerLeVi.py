@@ -23,6 +23,10 @@ class TestPlayer(BasePokerPlayer):
     if(len(hand) == 2):
         call_action_info = self.handle_starting_hand(hand, valid_actions)
         return call_action_info["action"]
+    if(len(hand) == 5):
+        self.calculate_hand(hand)
+        # call_action_info = self.handle_flop_street(hand, valid_actions)
+        # return call_action_info["action"]
 
     r = rand.random()
     if r <= 0.5:
@@ -54,8 +58,74 @@ class TestPlayer(BasePokerPlayer):
             return valid_actions[1]
     return valid_actions[0]
 
+  def handle_flop_street(self, hand, valid_actions):
+    pass
 
-    
+  def calculate_hand(self, hand):
+    reformatted_hand = []
+    for card in hand:
+      reformatted_card = card[0]
+      if ord(card[1]) > 57:
+        if card[1] == 'T':
+          reformatted_card = ':' + reformatted_card
+        elif card[1] == 'J':
+          reformatted_card = ';' + reformatted_card
+        elif card[1] == 'Q':
+          reformatted_card = '<' + reformatted_card
+        elif card[1] == 'K':
+          reformatted_card = '=' + reformatted_card
+        elif card[1] == 'A':
+          reformatted_card = '>' + reformatted_card
+      else: 
+        reformatted_card = card[1] + reformatted_card
+      reformatted_hand.append(reformatted_card)
+    reformatted_hand.sort()
+    print(reformatted_hand)
+    if ord(reformatted_hand[1][0]) - ord(reformatted_hand[0][0]) == 1 and ord(reformatted_hand[2][0]) - ord(reformatted_hand[1][0]) and ord(reformatted_hand[3][0]) - ord(reformatted_hand[2][0]) and ord(reformatted_hand[4][0]) - ord(reformatted_hand[3][0]):
+      if reformatted_hand[0][1] == reformatted_hand[1][1] and reformatted_hand[1][1] == reformatted_hand[2][1] and reformatted_hand[2][1] == reformatted_hand[3][1] and reformatted_hand[3][1] == reformatted_hand[4][1]:
+        if reformatted_hand[0][0] == ':':
+          return 9
+        else:
+          return 8
+      else:
+        return 4
+    dupe_score = check_dupes(reformatted_hand)
+    if dupe_score > 0:
+      return dupe_score
+    if reformatted_hand[0][1] == reformatted_hand[1][1] and reformatted_hand[1][1] == reformatted_hand[2][1] and reformatted_hand[2][1] == reformatted_hand[3][1] and reformatted_hand[3][1] == reformatted_hand[4][1]:
+      return 5
+    return 0
+      
+
+  def check_dupes(self, hand):
+    count_dict = {}
+    check3 = False
+    check2_1 = False
+    check2_2 = False
+    for card in hand:
+      if card[0] in count_dict:
+        count_dict[card[0]] += 1
+      else:
+        count_dict[card[0]] = 1
+    for count in count_dict.values():
+      if count >= 4:
+        return 7
+      if count == 3:
+        check3 = True
+      if count == 2:
+        if check2_1 == False:
+          check2_1 = True
+        else:
+          check2_2 = True
+      if check3 == True:
+        if check2_1 == True:
+          return 6
+        return 3
+      if check2_1 == True:
+        if check2_2 == True:
+          return 2
+        return 1
+    return 0
 
   def receive_game_start_message(self, game_info):
     pass
