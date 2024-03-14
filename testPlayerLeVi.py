@@ -21,7 +21,6 @@ class TestPlayer(BasePokerPlayer):
     # print("-------------------------------")
     table = round_state['community_card']
     hand = hole_card
-    
     # pp.pprint(hand)
     # pp.pprint(valid_actions)
     if(len(table) == 0):
@@ -31,8 +30,8 @@ class TestPlayer(BasePokerPlayer):
       print(self.win_rate(hand, table))
     # if(len(table) == 3):
     #     self.calculate_hand(hand)
-        # call_action_info = self.handle_flop_street(hand, valid_actions)
-        # return call_action_info["action"]
+    #     call_action_info = self.handle_flop_street(hand, valid_actions)
+    #     return call_action_info["action"]
 
     r = rand.random()
     if r <= 0.5:
@@ -108,8 +107,9 @@ class TestPlayer(BasePokerPlayer):
           for i4 in range(i3 + 1, hand_size):
             hand_five.append(hand[i4])
             for i5 in range(i4 + 1, hand_size):
-              hand_five.append(hand[i4])
-              max_level = max(max_level, self.calculate_hand(hand_five))
+              hand_five.append(hand[i5])
+              hand_score = self.calculate_hand(hand_five)
+              max_level = max(max_level, hand_score)
               hand_five = hand_five[:-1]
             hand_five = hand_five[:-1]
           hand_five = hand_five[:-1]
@@ -136,7 +136,8 @@ class TestPlayer(BasePokerPlayer):
         reformatted_card = card[1] + reformatted_card
       reformatted_hand.append(reformatted_card)
     reformatted_hand.sort()
-    if ord(reformatted_hand[1][0]) - ord(reformatted_hand[0][0]) == 1 and ord(reformatted_hand[2][0]) - ord(reformatted_hand[1][0]) and ord(reformatted_hand[3][0]) - ord(reformatted_hand[2][0]) and ord(reformatted_hand[4][0]) - ord(reformatted_hand[3][0]):
+    print(reformatted_hand)
+    if ord(reformatted_hand[1][0]) - ord(reformatted_hand[0][0]) == 1 and ord(reformatted_hand[2][0]) - ord(reformatted_hand[1][0]) == 1 and ord(reformatted_hand[3][0]) - ord(reformatted_hand[2][0]) == 1 and ord(reformatted_hand[4][0]) - ord(reformatted_hand[3][0]) == 1:
       if reformatted_hand[0][1] == reformatted_hand[1][1] and reformatted_hand[1][1] == reformatted_hand[2][1] and reformatted_hand[2][1] == reformatted_hand[3][1] and reformatted_hand[3][1] == reformatted_hand[4][1]:
         if reformatted_hand[0][0] == ':':
           return 9
@@ -172,14 +173,14 @@ class TestPlayer(BasePokerPlayer):
           check2_1 = True
         else:
           check2_2 = True
-      if check3 == True:
-        if check2_1 == True:
-          return 6
-        return 3
+    if check3 == True:
       if check2_1 == True:
-        if check2_2 == True:
-          return 2
-        return 1
+        return 6
+      return 3
+    if check2_1 == True:
+      if check2_2 == True:
+        return 2
+      return 1
     return 0
 
   def receive_game_start_message(self, game_info):
