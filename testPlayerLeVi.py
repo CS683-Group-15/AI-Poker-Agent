@@ -3,6 +3,11 @@ import random as rand
 import pprint
 
 class TestPlayer(BasePokerPlayer):
+  deck = []
+  for suit in ['H', 'D', 'S', 'C']:
+    for number in ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']:
+      card = suit + number
+      deck.append(card)
 
   def declare_action(self, valid_actions, hole_card, round_state):
     # valid_actions format => [raise_action_pp = pprint.PrettyPrinter(indent=2)
@@ -16,15 +21,16 @@ class TestPlayer(BasePokerPlayer):
     # print("-------------------------------")
     table = round_state['community_card']
     hand = hole_card
-    for card in table:
-        hand.append(card)
+    
     # pp.pprint(hand)
     # pp.pprint(valid_actions)
-    if(len(hand) == 2):
+    if(len(table) == 0):
         call_action_info = self.handle_starting_hand(hand, valid_actions)
         return call_action_info["action"]
-    if(len(hand) == 5):
-        self.calculate_hand(hand)
+    else:
+      print(self.win_rate(hand, table))
+    # if(len(table) == 3):
+    #     self.calculate_hand(hand)
         # call_action_info = self.handle_flop_street(hand, valid_actions)
         # return call_action_info["action"]
 
@@ -61,6 +67,56 @@ class TestPlayer(BasePokerPlayer):
   def handle_flop_street(self, hand, valid_actions):
     pass
 
+  def win_rate(self, hand, table):
+    my_cards = []
+    opponent_cards = []
+    score = 0
+    overallCases = 0
+    for card in hand:
+        my_cards.append(card)
+    for card in table:
+        my_cards.append(card)
+        opponent_cards.append(card)
+    my_best = self.best_hand_level(my_cards)
+    for card1Idx in range(0, 52):
+      for card2Idx in range(card1Idx + 1, 52):
+        card1 = self.deck[card1Idx]
+        card2 = self.deck[card2Idx]
+        if card1 not in hand and card1 not in table and card2 not in hand and card2 not in table:
+          opponent_cards.append(card1)
+          opponent_cards.append(card2)
+          opponent_best = self.best_hand_level(opponent_cards)
+          if my_best > opponent_best:
+            score += 1
+          elif my_best == opponent_best:
+            score += 0.5
+          overallCases += 1
+          opponent_cards = opponent_cards[:-2]
+    return score/overallCases
+    
+
+  def best_hand_level(self, hand):
+    hand_size = len(hand)
+    max_level = 0
+    hand_five = []
+    for i1 in range(0, hand_size):
+      hand_five.append(hand[i1])
+      for i2 in range(i1 + 1, hand_size):
+        hand_five.append(hand[i2])
+        for i3 in range(i2 + 1, hand_size):
+          hand_five.append(hand[i3])
+          for i4 in range(i3 + 1, hand_size):
+            hand_five.append(hand[i4])
+            for i5 in range(i4 + 1, hand_size):
+              hand_five.append(hand[i4])
+              max_level = max(max_level, self.calculate_hand(hand_five))
+              hand_five = hand_five[:-1]
+            hand_five = hand_five[:-1]
+          hand_five = hand_five[:-1]
+        hand_five = hand_five[:-1]
+      hand_five = hand_five[:-1]
+    return max_level
+
   def calculate_hand(self, hand):
     reformatted_hand = []
     for card in hand:
@@ -80,7 +136,6 @@ class TestPlayer(BasePokerPlayer):
         reformatted_card = card[1] + reformatted_card
       reformatted_hand.append(reformatted_card)
     reformatted_hand.sort()
-    print(reformatted_hand)
     if ord(reformatted_hand[1][0]) - ord(reformatted_hand[0][0]) == 1 and ord(reformatted_hand[2][0]) - ord(reformatted_hand[1][0]) and ord(reformatted_hand[3][0]) - ord(reformatted_hand[2][0]) and ord(reformatted_hand[4][0]) - ord(reformatted_hand[3][0]):
       if reformatted_hand[0][1] == reformatted_hand[1][1] and reformatted_hand[1][1] == reformatted_hand[2][1] and reformatted_hand[2][1] == reformatted_hand[3][1] and reformatted_hand[3][1] == reformatted_hand[4][1]:
         if reformatted_hand[0][0] == ':':
@@ -89,7 +144,7 @@ class TestPlayer(BasePokerPlayer):
           return 8
       else:
         return 4
-    dupe_score = check_dupes(reformatted_hand)
+    dupe_score = self.check_dupes(reformatted_hand)
     if dupe_score > 0:
       return dupe_score
     if reformatted_hand[0][1] == reformatted_hand[1][1] and reformatted_hand[1][1] == reformatted_hand[2][1] and reformatted_hand[2][1] == reformatted_hand[3][1] and reformatted_hand[3][1] == reformatted_hand[4][1]:
