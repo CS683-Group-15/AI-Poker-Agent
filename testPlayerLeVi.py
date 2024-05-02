@@ -24,8 +24,10 @@ class TestPlayer(BasePokerPlayer):
     # pp.pprint(hand)
     # pp.pprint(valid_actions)
     if(len(table) == 0):
-        call_action_info = self.handle_starting_hand(hand, valid_actions)
-        return call_action_info["action"]
+        action = valid_actions[1]["action"]
+        return action
+        # call_action_info = self.handle_starting_hand(hand, valid_actions)
+        # return call_action_info["action"]
     else:
       round_win_rate = self.win_rate(hand, table)
       if round_win_rate > 0.75:
@@ -35,7 +37,7 @@ class TestPlayer(BasePokerPlayer):
               return action
         action = valid_actions[1]["action"]
         return action
-      elif round_win_rate > 0.5: 
+      elif round_win_rate > 0.4: 
         action = valid_actions[1]["action"]
         return action
       else:
@@ -55,7 +57,8 @@ class TestPlayer(BasePokerPlayer):
   def handle_starting_hand(self, hand, valid_actions):
     card1 = hand[0]
     card2 = hand[1]
-    if card1[1] == card2[1] and ord(card1[1]) >= 54:
+    # if card1[1] == card2[1] and ord(card1[1]) >= 54:
+    if card1[1] == card2[1]:
         if len(valid_actions) == 3:
             return valid_actions[2]
         else:
