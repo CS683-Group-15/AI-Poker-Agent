@@ -27,21 +27,30 @@ class TestPlayer(BasePokerPlayer):
         call_action_info = self.handle_starting_hand(hand, valid_actions)
         return call_action_info["action"]
     else:
-      print(self.win_rate(hand, table))
-    # if(len(table) == 3):
-    #     self.calculate_hand(hand)
-    #     call_action_info = self.handle_flop_street(hand, valid_actions)
-    #     return call_action_info["action"]
+      round_win_rate = self.win_rate(hand, table)
+      if round_win_rate > 0.75:
+        for i in valid_actions:
+          if i["action"] == "raise":
+              action = i["action"]
+              return action
+        action = valid_actions[1]["action"]
+        return action
+      elif round_win_rate > 0.5: 
+        action = valid_actions[1]["action"]
+        return action
+      else:
+        action = valid_actions[0]["action"]
+        return action
 
-    r = rand.random()
-    if r <= 0.5:
-      call_action_info = valid_actions[1]
-    elif r<= 0.9 and len(valid_actions ) == 3:
-      call_action_info = valid_actions[2]
-    else:
-      call_action_info = valid_actions[0]
-    action = call_action_info["action"]
-    return action  # action returned here is sent to the poker engine
+    # r = rand.random()
+    # if r <= 0.5:
+    #   call_action_info = valid_actions[1]
+    # elif r<= 0.9 and len(valid_actions ) == 3:
+    #   call_action_info = valid_actions[2]
+    # else:
+    #   call_action_info = valid_actions[0]
+    # action = call_action_info["action"]
+    # return action  # action returned here is sent to the poker engine
 
   def handle_starting_hand(self, hand, valid_actions):
     card1 = hand[0]
@@ -136,7 +145,7 @@ class TestPlayer(BasePokerPlayer):
         reformatted_card = card[1] + reformatted_card
       reformatted_hand.append(reformatted_card)
     reformatted_hand.sort()
-    print(reformatted_hand)
+    # print(reformatted_hand)
     if ord(reformatted_hand[1][0]) - ord(reformatted_hand[0][0]) == 1 and ord(reformatted_hand[2][0]) - ord(reformatted_hand[1][0]) == 1 and ord(reformatted_hand[3][0]) - ord(reformatted_hand[2][0]) == 1 and ord(reformatted_hand[4][0]) - ord(reformatted_hand[3][0]) == 1:
       if reformatted_hand[0][1] == reformatted_hand[1][1] and reformatted_hand[1][1] == reformatted_hand[2][1] and reformatted_hand[2][1] == reformatted_hand[3][1] and reformatted_hand[3][1] == reformatted_hand[4][1]:
         if reformatted_hand[0][0] == ':':
