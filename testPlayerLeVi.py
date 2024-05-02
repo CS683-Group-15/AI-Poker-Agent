@@ -3,6 +3,11 @@ import random as rand
 import pprint
 
 class TestPlayer(BasePokerPlayer):
+
+  last_actions = []
+  raise_threshold = 0.7
+  call_threshold = 0.4
+
   deck = []
   for suit in ['H', 'D', 'S', 'C']:
     for number in ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']:
@@ -24,21 +29,26 @@ class TestPlayer(BasePokerPlayer):
     # pp.pprint(hand)
     # pp.pprint(valid_actions)
     if(len(table) == 0):
+        # 0.62 winrate for this option
         action = valid_actions[1]["action"]
+        self.last_actions.append('CALL')
         return action
         # call_action_info = self.handle_starting_hand(hand, valid_actions)
         # return call_action_info["action"]
     else:
       round_win_rate = self.win_rate(hand, table)
-      if round_win_rate > 0.75:
+      if round_win_rate > self.raise_threshold:
         for i in valid_actions:
           if i["action"] == "raise":
               action = i["action"]
+              self.last_actions.append('RAISE')
               return action
         action = valid_actions[1]["action"]
+        self.last_actions.append('CALL')
         return action
-      elif round_win_rate > 0.4: 
+      elif round_win_rate > self.call_threshold: 
         action = valid_actions[1]["action"]
+        self.last_actions.append('CALL')
         return action
       else:
         action = valid_actions[0]["action"]
@@ -209,6 +219,24 @@ class TestPlayer(BasePokerPlayer):
 
   def receive_round_result_message(self, winners, hand_info, round_state):
     pass
+    # print("Round result: ")
+    # if self.uuid == winners[0]['uuid']:
+    #   for action in self.last_actions:
+    #     if action == 'CALL':
+    #       self.call_threshold = self.call_threshold * 0.99
+    #     elif action == 'RAISE':
+    #       self.raise_threshold = self.raise_threshold * 0.995
+      
+    # else:
+    #   for action in self.last_actions:
+    #     if action == 'CALL':
+    #       self.call_threshold = self.call_threshold + (1 - self.call_threshold) * 0.01
+    #     elif action == 'RAISE':
+    #       self.raise_threshold = self.raise_threshold + (1 - self.raise_threshold) * 0.005
+    # print(self.call_threshold)
+    # print(self.raise_threshold)
+    # print(hand_info)
+    # print(round_state)
 
 def setup_ai():
   return TestPlayer()
